@@ -75,7 +75,7 @@ export default function Dashboard() {
             <div className="feature">
               <span className="feature-icon">01</span>
               <h4>Hot Path</h4>
-              <p>Heuristic rules with Gemini Nano for instant commands under 50ms latency</p>
+              <p>Heuristic rules for instant coaching commands under 50ms latency</p>
             </div>
             <div className="feature">
               <span className="feature-icon">02</span>

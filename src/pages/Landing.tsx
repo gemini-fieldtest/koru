@@ -91,7 +91,7 @@ export default function Landing() {
           <div className="step-card">
             <BarChart3 size={20} />
             <h4>Compare</h4>
-            <p>Upload two laps side by side and let Gemini Pro identify where you lost time</p>
+            <p>Upload two laps side by side and let Gemini identify where you lost time</p>
           </div>
         </div>
       </section>

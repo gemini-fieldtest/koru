@@ -6,7 +6,7 @@ type CoachingCallback = (msg: { path: 'hot' | 'cold' | 'feedforward'; action?: C
 
 /**
  * Split-brain coaching engine:
- * - HOT: heuristic rules → optional Gemini Nano (<50ms)
+ * - HOT: heuristic rules with humanized text (<50ms)
  * - COLD: Gemini Cloud with cooldown (2-5s)
  * - FEEDFORWARD: geofence-based corner advice
  */
@@ -64,30 +64,16 @@ export class CoachingService {
         this.lastHotAction = rule.action;
         this.lastHotTime = now;
 
-        // Try Gemini Nano for natural language expansion
-        this.expandWithNano(rule.action, frame).then(text => {
-          this.emit({ path: 'hot', action: rule.action, text });
-        });
+        // Humanize action name for display and TTS (e.g. TRAIL_BRAKE → "Trail brake")
+        const text = this.humanizeAction(rule.action);
+        this.emit({ path: 'hot', action: rule.action, text });
         return;
       }
     }
   }
 
-  private async expandWithNano(action: CoachAction, frame: TelemetryFrame): Promise<string> {
-    try {
-      const lm = (window as any).LanguageModel;
-      if (lm && await lm.availability() === 'readily') {
-        const session = await lm.create({
-          systemPrompt: this.getCoach().systemPrompt,
-        });
-        const result = await session.prompt(
-          `Action: ${action}. Speed: ${frame.speed.toFixed(0)}mph, Brake: ${frame.brake.toFixed(0)}%, Throttle: ${frame.throttle.toFixed(0)}%, G-Lat: ${frame.gLat.toFixed(2)}. Give a 5-10 word coaching command.`
-        );
-        session.destroy?.();
-        return result || action;
-      }
-    } catch { /* Nano unavailable */ }
-    // Humanize the action name so TTS doesn't spell it out
+  /** Convert action enum to spoken text */
+  private humanizeAction(action: CoachAction): string {
     return action.replace(/_/g, ' ').toLowerCase().replace(/^\w/, c => c.toUpperCase());
   }
 
