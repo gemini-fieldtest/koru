@@ -101,7 +101,8 @@ export type CoachAction =
   | 'THRESHOLD' | 'TRAIL_BRAKE' | 'BRAKE' | 'WAIT'
   | 'TURN_IN' | 'COMMIT' | 'ROTATE' | 'APEX'
   | 'THROTTLE' | 'PUSH' | 'FULL_THROTTLE'
-  | 'STABILIZE' | 'MAINTAIN' | 'COAST';
+  | 'STABILIZE' | 'MAINTAIN' | 'COAST'
+  | 'DONT_BE_A_WUSS';
 
 export type SSEConnectionStatus = 'disconnected' | 'connecting' | 'connected' | 'error';
 
