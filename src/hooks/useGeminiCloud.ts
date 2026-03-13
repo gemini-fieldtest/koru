@@ -42,7 +42,7 @@ export const useGeminiCloud = () => {
       setStatus(prev => ({ ...prev, state: 'loading', error: undefined }));
 
       try {
-        const modelName = model === 'pro' ? 'gemini-2.5-pro-preview' : 'gemini-2.0-flash';
+        const modelName = model === 'pro' ? 'gemini-2.0-flash' : 'gemini-2.0-flash';
 
         const prompt = model === 'pro'
           ? `You are an Elite Driver Coach.
@@ -72,9 +72,7 @@ TASK: Identify the biggest time loss. Explain the error.
         const body: Record<string, unknown> = {
           contents: [{ parts: [{ text: prompt }] }],
         };
-        if (model === 'pro') {
-          body.generationConfig = { thinkingConfig: { thinkingLevel: 'high' } };
-        }
+        // Note: thinkingConfig only supported by gemini-2.5-pro models
 
         const res = await fetch(
           `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`,

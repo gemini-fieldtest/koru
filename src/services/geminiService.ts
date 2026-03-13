@@ -50,7 +50,7 @@ Analyze the lap. For each issue found:
 **Telemetry Evidence:** [data reference]
 **Fix:** [actionable instruction]`;
 
-    return this.callApi('gemini-2.0-flash', prompt, { thinkingConfig: { thinkingLevel: 'high' } });
+    return this.callApi('gemini-2.0-flash', prompt);
   }
 
   private async callApi(model: string, prompt: string, generationConfig?: Record<string, unknown>): Promise<string> {

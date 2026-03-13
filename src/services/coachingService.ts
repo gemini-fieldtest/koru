@@ -87,7 +87,8 @@ export class CoachingService {
         return result || action;
       }
     } catch { /* Nano unavailable */ }
-    return action;
+    // Humanize the action name so TTS doesn't spell it out
+    return action.replace(/_/g, ' ').toLowerCase().replace(/^\w/, c => c.toUpperCase());
   }
 
   // ── COLD PATH: Gemini Cloud detailed analysis ──────────

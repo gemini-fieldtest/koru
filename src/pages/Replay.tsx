@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { parseTelemetryCSV } from '../utils/telemetryParser';
+import { CoachingService } from '../services/coachingService';
 import { useGeminiCloud } from '../hooks/useGeminiCloud';
 import { useTTS } from '../hooks/useTTS';
 import { usePredictiveCoaching } from '../hooks/usePredictiveCoaching';
@@ -32,6 +33,40 @@ export default function Replay({ apiKey }: ReplayProps) {
   const { analyzeLap, checkLookahead } = usePredictiveCoaching();
 
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const coachRef = useRef(new CoachingService());
+
+  // Wire up coaching service
+  useEffect(() => {
+    if (apiKey) coachRef.current.setApiKey(apiKey);
+  }, [apiKey]);
+
+  useEffect(() => {
+    coachRef.current.setCoach(activeCoach);
+  }, [activeCoach]);
+
+  const audioEnabledRef = useRef(audioEnabled);
+  useEffect(() => { audioEnabledRef.current = audioEnabled; }, [audioEnabled]);
+
+  const speakRef = useRef(speak);
+  useEffect(() => { speakRef.current = speak; }, [speak]);
+
+  useEffect(() => {
+    const unsub = coachRef.current.onCoaching(msg => {
+      const coachMsg: CoachMessage = {
+        id: `coach-${Date.now()}-${Math.random()}`,
+        path: msg.path,
+        text: msg.text,
+        timestamp: Date.now(),
+      };
+      setMessages(prev => [...prev, coachMsg]);
+
+      // Speak coaching messages
+      if (audioEnabledRef.current && msg.text) {
+        speakRef.current(msg.text);
+      }
+    });
+    return unsub;
+  }, []);
 
   // File upload
   const handleFileUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -70,11 +105,16 @@ export default function Replay({ apiKey }: ReplayProps) {
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
   }, [isPlaying, frames.length, speed]);
 
-  // Predictive coaching check on frame change
+  // Run coaching engine + predictive coaching on frame change
   useEffect(() => {
     if (frames.length === 0) return;
     const frame = frames[currentIdx];
     if (!frame) return;
+
+    // Process through hot/cold/feedforward coaching engine
+    coachRef.current.processFrame(frame);
+
+    // Predictive coaching lookahead
     const zone = checkLookahead(frame);
     if (zone) {
       const msg: CoachMessage = {
