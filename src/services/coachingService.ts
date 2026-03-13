@@ -72,9 +72,26 @@ export class CoachingService {
     }
   }
 
-  /** Convert action enum to spoken text */
+  /** Convert action enum to hobby-driver-friendly coaching phrase */
   private humanizeAction(action: CoachAction): string {
-    return action.replace(/_/g, ' ').toLowerCase().replace(/^\w/, c => c.toUpperCase());
+    const phrases: Record<CoachAction, string> = {
+      THRESHOLD:    'Squeeze the brakes hard!',
+      TRAIL_BRAKE:  'Ease off the brake as you turn in',
+      BRAKE:        'Brake now!',
+      WAIT:         'Be patient — wait for it',
+      TURN_IN:      'Turn in now!',
+      COMMIT:       'Trust the car — commit to the corner!',
+      ROTATE:       'Let the car rotate — less steering, more patience',
+      APEX:         'Hit that apex!',
+      THROTTLE:     'Get on the gas!',
+      PUSH:         'Nice straight — push it!',
+      FULL_THROTTLE:'Floor it — full throttle!',
+      STABILIZE:    'Hold it steady',
+      MAINTAIN:     'Looking good — keep it up!',
+      COAST:        "You're coasting — pick a pedal!",
+      DONT_BE_A_WUSS: "Don't be a wuss — send it!",
+    };
+    return phrases[action] ?? action;
   }
 
   // ── COLD PATH: Gemini Cloud detailed analysis ──────────
