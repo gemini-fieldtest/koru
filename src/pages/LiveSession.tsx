@@ -54,9 +54,7 @@ export default function LiveSession({ apiKey }: LiveSessionProps) {
       };
       setMessages(prev => [...prev, coachMsg]);
 
-      if (audioEnabled && msg.action) {
-        audioRef.current.play(msg.action);
-      } else if (audioEnabled && msg.path === 'feedforward') {
+      if (audioEnabled && msg.text) {
         audioRef.current.speak(msg.text);
       }
     });
