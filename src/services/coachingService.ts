@@ -35,6 +35,8 @@ export class CoachingService {
 
   /** Called on every telemetry frame */
   processFrame(frame: TelemetryFrame) {
+    // 🧠 PROBE 2 — frame entering the coaching engine:
+    // console.log('🧠 COACHING', { speed: frame.speed.toFixed(1), brake: frame.brake.toFixed(0), throttle: frame.throttle.toFixed(0) });
     this.runHotPath(frame);
     this.runFeedforward(frame);
     this.runColdPath(frame);
@@ -66,29 +68,78 @@ export class CoachingService {
 
         // Humanize action name for display and TTS (e.g. TRAIL_BRAKE → "Trail brake")
         const text = this.humanizeAction(rule.action);
+        // ⚡ PROBE 3 — hot path firing:
+        // console.log('⚡ HOT', { action: rule.action, text, coach: this.coachId });
         this.emit({ path: 'hot', action: rule.action, text });
         return;
       }
     }
   }
 
-  /** Convert action enum to hobby-driver-friendly coaching phrase */
+  /** Convert action enum to coaching phrase — style varies by active persona */
   private humanizeAction(action: CoachAction): string {
+    const coach = this.getCoach();
+
+    // AJ: terse telemetry commands (≤4 words — matches his systemPrompt style)
+    if (coach.id === 'aj') {
+      const phrases: Record<CoachAction, string> = {
+        THRESHOLD:      'Max brake.',
+        TRAIL_BRAKE:    'Trail. Release.',
+        BRAKE:          'Brake.',
+        WAIT:           'Hold.',
+        TURN_IN:        'Turn.',
+        COMMIT:         'Commit.',
+        ROTATE:         'Rotate.',
+        APEX:           'Apex.',
+        THROTTLE:       'Throttle.',
+        PUSH:           'Push.',
+        FULL_THROTTLE:  'Flat.',
+        STABILIZE:      'Stabilize.',
+        MAINTAIN:       'Maintain.',
+        COAST:          'Pick a pedal.',
+        DONT_BE_A_WUSS: 'Send it.',
+      };
+      return phrases[action] ?? action;
+    }
+
+    // Rachel: physics-grounded phrasing — matches her friction-circle focus
+    if (coach.id === 'rachel') {
+      const phrases: Record<CoachAction, string> = {
+        THRESHOLD:      'Max decel — full friction circle.',
+        TRAIL_BRAKE:    'Trail off brake. Load the front.',
+        BRAKE:          'Brake — transfer weight forward.',
+        WAIT:           'Patience — wait for weight transfer.',
+        TURN_IN:        'Turn in — commit to the line.',
+        COMMIT:         'Commit — trust the friction circle.',
+        ROTATE:         'Rotate — ease steering, let it pivot.',
+        APEX:           'Clip the apex — tighten radius.',
+        THROTTLE:       'Progressive throttle — balance the platform.',
+        PUSH:           'Straight — extend the friction circle.',
+        FULL_THROTTLE:  'Full throttle — max longitudinal G.',
+        STABILIZE:      'Stabilize — neutral inputs.',
+        MAINTAIN:       'Balanced — maintain platform.',
+        COAST:          'Coasting — no G-vector. Pick a pedal.',
+        DONT_BE_A_WUSS: 'The data says commit. Trust it.',
+      };
+      return phrases[action] ?? action;
+    }
+
+    // Default (Tony, Garmin, Super AJ) — hobby-driver-friendly
     const phrases: Record<CoachAction, string> = {
-      THRESHOLD:    'Squeeze the brakes hard!',
-      TRAIL_BRAKE:  'Ease off the brake as you turn in',
-      BRAKE:        'Brake now!',
-      WAIT:         'Be patient — wait for it',
-      TURN_IN:      'Turn in now!',
-      COMMIT:       'Trust the car — commit to the corner!',
-      ROTATE:       'Let the car rotate — less steering, more patience',
-      APEX:         'Hit that apex!',
-      THROTTLE:     'Get on the gas!',
-      PUSH:         'Nice straight — push it!',
-      FULL_THROTTLE:'Floor it — full throttle!',
-      STABILIZE:    'Hold it steady',
-      MAINTAIN:     'Looking good — keep it up!',
-      COAST:        "You're coasting — pick a pedal!",
+      THRESHOLD:      'Squeeze the brakes hard!',
+      TRAIL_BRAKE:    'Ease off the brake as you turn in',
+      BRAKE:          'Brake now!',
+      WAIT:           'Be patient — wait for it',
+      TURN_IN:        'Turn in now!',
+      COMMIT:         'Trust the car — commit to the corner!',
+      ROTATE:         'Let the car rotate — less steering, more patience',
+      APEX:           'Hit that apex!',
+      THROTTLE:       'Get on the gas!',
+      PUSH:           'Nice straight — push it!',
+      FULL_THROTTLE:  'Floor it — full throttle!',
+      STABILIZE:      'Hold it steady',
+      MAINTAIN:       'Looking good — keep it up!',
+      COAST:          "You're coasting — pick a pedal!",
       DONT_BE_A_WUSS: "Don't be a wuss — send it!",
     };
     return phrases[action] ?? action;
@@ -130,6 +181,8 @@ Give a short coaching instruction followed by a brief physics-based explanation.
       if (!res.ok) return;
       const data = await res.json();
       const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+      // ☁️ PROBE 4 — cold path (Gemini) responding:
+      // console.log('☁️ COLD', { coach: coach.id, chars: text.length, preview: text.slice(0, 60) });
       if (text) this.emit({ path: 'cold', text });
     } catch (err) {
       console.error('Cold path failed:', err);
