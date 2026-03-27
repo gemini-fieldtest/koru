@@ -26,7 +26,7 @@ export default function LiveSession({ apiKey }: LiveSessionProps) {
   const streamRef = useRef(TelemetryStreamService.getInstance());
   const coachRef = useRef(new CoachingService());
   const audioRef = useRef(new AudioService());
-  const { speak, setProvider, provider } = useTTS(apiKey);
+  const { speak, setProvider, provider } = useTTS(apiKey, activeCoach);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -105,9 +105,7 @@ export default function LiveSession({ apiKey }: LiveSessionProps) {
             onChange={e => setProvider(e.target.value as TTSProvider)}
           >
             <option value="browser">Browser TTS</option>
-            <option value="google">Google TTS</option>
-            <option value="gemini-flash">Gemini Flash</option>
-            <option value="gemini-pro">Gemini Pro</option>
+            <option value="gemini">Gemini TTS</option>
           </select>
         </div>
       </header>
