@@ -2,12 +2,13 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { TelemetryStreamService } from '../services/telemetryStreamService';
 import { CoachingService } from '../services/coachingService';
 import { AudioService } from '../services/audioService';
+import { useTTS } from '../hooks/useTTS';
 import { THUNDERHILL_EAST } from '../data/trackData';
 import TelemetryCharts from '../components/TelemetryCharts';
 import TrackMap from '../components/TrackMap';
 import CoachPanel, { type CoachMessage } from '../components/CoachPanel';
 import GaugeCluster from '../components/GaugeCluster';
-import type { TelemetryFrame, SSEConnectionStatus } from '../types';
+import type { TelemetryFrame, SSEConnectionStatus, TTSProvider } from '../types';
 import { Radio, Unplug } from 'lucide-react';
 
 interface LiveSessionProps {
@@ -25,6 +26,7 @@ export default function LiveSession({ apiKey }: LiveSessionProps) {
   const streamRef = useRef(TelemetryStreamService.getInstance());
   const coachRef = useRef(new CoachingService());
   const audioRef = useRef(new AudioService());
+  const { speak, setProvider, provider } = useTTS(apiKey);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -55,12 +57,12 @@ export default function LiveSession({ apiKey }: LiveSessionProps) {
       setMessages(prev => [...prev, coachMsg]);
 
       if (audioEnabled && msg.text) {
-        audioRef.current.speak(msg.text);
+        speak(msg.text);
       }
     });
 
     return () => { unsubStatus(); unsubFrame(); unsubCoach(); };
-  }, [audioEnabled]);
+  }, [audioEnabled, speak]);
 
   const handleConnect = useCallback(() => {
     if (status === 'connected') {
@@ -97,6 +99,16 @@ export default function LiveSession({ apiKey }: LiveSessionProps) {
             {status === 'connected' ? <><Unplug size={14} /> Disconnect</> : <><Radio size={14} /> Connect</>}
           </button>
           <span className={`status-badge status-${status}`}>{status}</span>
+          <select
+            className="tts-select"
+            value={provider}
+            onChange={e => setProvider(e.target.value as TTSProvider)}
+          >
+            <option value="browser">Browser TTS</option>
+            <option value="google">Google TTS</option>
+            <option value="gemini-flash">Gemini Flash</option>
+            <option value="gemini-pro">Gemini Pro</option>
+          </select>
         </div>
       </header>
 
