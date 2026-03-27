@@ -124,7 +124,51 @@ export class CoachingService {
       return phrases[action] ?? action;
     }
 
-    // Default (Tony, Garmin, Super AJ) — hobby-driver-friendly
+    // Tony: motivational, feel-based — short punchy hype
+    if (coach.id === 'tony') {
+      const phrases: Record<CoachAction, string> = {
+        THRESHOLD:      'Hammer the brakes — own it!',
+        TRAIL_BRAKE:    'Breathe off the brake — feel it!',
+        BRAKE:          'Brake! Now!',
+        WAIT:           'Stay cool — wait for it!',
+        TURN_IN:        'Turn in — trust yourself!',
+        COMMIT:         'Commit! Send it!',
+        ROTATE:         'Let it rotate — feel the car!',
+        APEX:           'Hit that apex — you got this!',
+        THROTTLE:       'Get on the gas — go go go!',
+        PUSH:           'Clear road — push it hard!',
+        FULL_THROTTLE:  'Full send — floor it!',
+        STABILIZE:      'Easy now — hold steady!',
+        MAINTAIN:       'That\'s it — keep the momentum!',
+        COAST:          'Don\'t coast — commit to a pedal!',
+        DONT_BE_A_WUSS: 'No hesitation — send it!',
+      };
+      return phrases[action] ?? action;
+    }
+
+    // Garmin: data-focused, clinical numbers
+    if (coach.id === 'garmin') {
+      const phrases: Record<CoachAction, string> = {
+        THRESHOLD:      'Peak brake force. Hold threshold.',
+        TRAIL_BRAKE:    'Trail braking. Reduce 10% per meter.',
+        BRAKE:          'Brake point. Decelerate now.',
+        WAIT:           'Patience zone. Maintain position.',
+        TURN_IN:        'Turn-in point. Initiate steering.',
+        COMMIT:         'Commit. No delta loss here.',
+        ROTATE:         'Rotation phase. Reduce steering input.',
+        APEX:           'Apex. Minimum speed point.',
+        THROTTLE:       'Throttle. Progressive application.',
+        PUSH:           'Straight. +0.3s available here.',
+        FULL_THROTTLE:  'Full throttle. Max longitudinal.',
+        STABILIZE:      'Neutral. Stabilize inputs.',
+        MAINTAIN:       'On delta. Maintain.',
+        COAST:          'Coasting. Losing delta. Pick a pedal.',
+        DONT_BE_A_WUSS: 'Data shows margin. Commit.',
+      };
+      return phrases[action] ?? action;
+    }
+
+    // Super AJ: adaptive — hobby-driver-friendly default
     const phrases: Record<CoachAction, string> = {
       THRESHOLD:      'Squeeze the brakes hard!',
       TRAIL_BRAKE:    'Ease off the brake as you turn in',
